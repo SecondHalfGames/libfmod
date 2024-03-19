@@ -4352,12 +4352,12 @@ impl TryFrom<ffi::FMOD_VECTOR> for Vector {
     }
 }
 
-impl Into<ffi::FMOD_VECTOR> for Vector {
-    fn into(self) -> ffi::FMOD_VECTOR {
-        ffi::FMOD_VECTOR {
-            x: self.x,
-            y: self.y,
-            z: self.z,
+impl From<Vector> for ffi::FMOD_VECTOR {
+    fn from(value: Vector) -> Self {
+        Self {
+            x: value.x,
+            y: value.y,
+            z: value.z,
         }
     }
 }
@@ -6598,11 +6598,18 @@ impl Channel {
         }
     }
     pub fn set_3d_attributes(&self, pos: Option<Vector>, vel: Option<Vector>) -> Result<(), Error> {
+        let pos = pos.map(ffi::FMOD_VECTOR::from);
+        let vel = vel.map(ffi::FMOD_VECTOR::from);
+
         unsafe {
             match ffi::FMOD_Channel_Set3DAttributes(
                 self.pointer,
-                pos.map(|value| &value.into() as *const _).unwrap_or(null()),
-                vel.map(|value| &value.into() as *const _).unwrap_or(null()),
+                pos.as_ref()
+                    .map(|value| value as *const _)
+                    .unwrap_or(null()),
+                vel.as_ref()
+                    .map(|value| value as *const _)
+                    .unwrap_or(null()),
             ) {
                 ffi::FMOD_OK => Ok(()),
                 error => Err(err_fmod!("FMOD_Channel_Set3DAttributes", error)),
@@ -7440,11 +7447,18 @@ impl ChannelGroup {
         }
     }
     pub fn set_3d_attributes(&self, pos: Option<Vector>, vel: Option<Vector>) -> Result<(), Error> {
+        let pos = pos.map(ffi::FMOD_VECTOR::from);
+        let vel = vel.map(ffi::FMOD_VECTOR::from);
+
         unsafe {
             match ffi::FMOD_ChannelGroup_Set3DAttributes(
                 self.pointer,
-                pos.map(|value| &value.into() as *const _).unwrap_or(null()),
-                vel.map(|value| &value.into() as *const _).unwrap_or(null()),
+                pos.as_ref()
+                    .map(|value| value as *const _)
+                    .unwrap_or(null()),
+                vel.as_ref()
+                    .map(|value| value as *const _)
+                    .unwrap_or(null()),
             ) {
                 ffi::FMOD_OK => Ok(()),
                 error => Err(err_fmod!("FMOD_ChannelGroup_Set3DAttributes", error)),
@@ -8588,13 +8602,17 @@ impl Geometry {
         }
     }
     pub fn set_rotation(&self, forward: Option<Vector>, up: Option<Vector>) -> Result<(), Error> {
+        let forward = forward.map(ffi::FMOD_VECTOR::from);
+        let up = up.map(ffi::FMOD_VECTOR::from);
+
         unsafe {
             match ffi::FMOD_Geometry_SetRotation(
                 self.pointer,
                 forward
-                    .map(|value| &value.into() as *const _)
+                    .as_ref()
+                    .map(|value| value as *const _)
                     .unwrap_or(null()),
-                up.map(|value| &value.into() as *const _).unwrap_or(null()),
+                up.as_ref().map(|value| value as *const _).unwrap_or(null()),
             ) {
                 ffi::FMOD_OK => Ok(()),
                 error => Err(err_fmod!("FMOD_Geometry_SetRotation", error)),
@@ -8726,11 +8744,14 @@ impl Reverb3d {
         mindistance: f32,
         maxdistance: f32,
     ) -> Result<(), Error> {
+        let position = position.map(ffi::FMOD_VECTOR::from);
+
         unsafe {
             match ffi::FMOD_Reverb3D_Set3DAttributes(
                 self.pointer,
                 position
-                    .map(|value| &value.into() as *const _)
+                    .as_ref()
+                    .map(|value| value as *const _)
                     .unwrap_or(null()),
                 mindistance,
                 maxdistance,
@@ -11632,13 +11653,16 @@ impl Studio {
         attributes: Attributes3d,
         attenuationposition: Option<Vector>,
     ) -> Result<(), Error> {
+        let attenuationposition = attenuationposition.map(ffi::FMOD_VECTOR::from);
+
         unsafe {
             match ffi::FMOD_Studio_System_SetListenerAttributes(
                 self.pointer,
                 index,
                 &attributes.into(),
                 attenuationposition
-                    .map(|value| &value.into() as *const _)
+                    .as_ref()
+                    .map(|value| value as *const _)
                     .unwrap_or(null()),
             ) {
                 ffi::FMOD_OK => Ok(()),
@@ -12622,16 +12646,19 @@ impl System {
         forward: Option<Vector>,
         up: Option<Vector>,
     ) -> Result<(), Error> {
+        let pos = pos.map(ffi::FMOD_VECTOR::from);
+        let vel = vel.map(ffi::FMOD_VECTOR::from);
+        let forward = forward.map(ffi::FMOD_VECTOR::from);
+        let up = up.map(ffi::FMOD_VECTOR::from);
+
         unsafe {
             match ffi::FMOD_System_Set3DListenerAttributes(
                 self.pointer,
                 listener,
-                pos.map(|value| &value.into() as *const _).unwrap_or(null()),
-                vel.map(|value| &value.into() as *const _).unwrap_or(null()),
-                forward
-                    .map(|value| &value.into() as *const _)
-                    .unwrap_or(null()),
-                up.map(|value| &value.into() as *const _).unwrap_or(null()),
+                pos.as_ref().map(|p| p as *const _).unwrap_or(null()),
+                vel.as_ref().map(|p| p as *const _).unwrap_or(null()),
+                forward.as_ref().map(|p| p as *const _).unwrap_or(null()),
+                up.as_ref().map(|p| p as *const _).unwrap_or(null()),
             ) {
                 ffi::FMOD_OK => Ok(()),
                 error => Err(err_fmod!("FMOD_System_Set3DListenerAttributes", error)),
