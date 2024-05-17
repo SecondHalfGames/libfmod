@@ -4505,16 +4505,8 @@ impl TryFrom<ffi::FMOD_ADVANCEDSETTINGS> for AdvancedSettings {
                 max_fadpcm_codecs: value.maxFADPCMCodecs,
                 max_pcm_codecs: value.maxPCMCodecs,
                 asio_num_channels: value.ASIONumChannels,
-                asio_channel_list: to_vec!(
-                    value.ASIOChannelList,
-                    value.ASIONumChannels,
-                    |ptr| to_string!(ptr)
-                )?,
-                asio_speaker_list: to_vec!(
-                    value.ASIOSpeakerList,
-                    value.ASIONumChannels,
-                    Speaker::from
-                )?,
+                asio_channel_list: Vec::new(),
+                asio_speaker_list: Vec::new(),
                 vol_0_virtualvol: value.vol0virtualvol,
                 default_decode_buffer_size: value.defaultDecodeBufferSize,
                 profile_port: value.profilePort,
